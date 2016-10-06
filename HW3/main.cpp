@@ -158,6 +158,51 @@ void putPixel(int x, int y)
 void drawLine(int x1, int y1, int x2, int y2)
 {
 	// Task 1
+	float dx = abs(x2 - x1);
+	float dy = abs(y2 - y1);
+	float mx = 0;
+	float my = 0;
+	int roundY = 0;
+	int x = x1;
+	int y = y1;
+	dx == 0 ? mx = 0 : mx = dy / dx;
+	float dee = (2 * dy) - dx;
+	float inCrease0 = 2 * dy;
+	float inCrease1 = 2 * (dy - dx);
+	putPixel(x, y);
+	while (x <= x2)
+	{
+		if (dee <= 0)
+		{
+			dee = dee + inCrease0;
+			x = x + 1;
+			putPixel(x, y);
+		}
+		else
+		{
+
+			dee = dee + inCrease0;
+
+			y = y + 1;
+		}
+				/*
+				my = my + mx;
+				if (my > .5){
+					roundY = floor(my);
+					y = roundY;
+					my = my - roundY;
+				}
+				if (my > .5)
+				{
+					y = y + 1;
+					my = my - 1;
+				}
+				*/
+		x = x + 1;
+		putPixel(x, y);
+			
+	}
+	
 }
 
 void drawCircle(int x0, int y0, int R)
@@ -167,6 +212,8 @@ void drawCircle(int x0, int y0, int R)
 
 void drawImage()
 {	
+	for (int x = 0; x < 590; x++)
+		putPixel(x, x);
 	drawLine(150, 10, 450, 10);
 	drawLine(150, 310, 450, 310);
 	drawLine(150, 10, 150, 310);
