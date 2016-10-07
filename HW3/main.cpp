@@ -166,10 +166,36 @@ void drawLine(int x1, int y1, int x2, int y2)
 	int x = x1;
 	int y = y1;
 	dx == 0 ? mx = 0 : mx = dy / dx;
+
+
+
+	if (dy > dx)
+	{
+		x1 = y1;
+		x2 = y;
+		x = x1;
+		y1 = x2;
+		y2 = x;
+		y = y1;
+	}
+
+
+	if (x2 < x1)
+	{
+		x1 = x2;
+		x2 = x;
+		x = x1;
+		y1 = y2;
+		y2 = y;
+		y = y1;
+	}
+
 	float dee = (2 * dy) - dx;
 	float inCrease0 = 2 * dy;
 	float inCrease1 = 2 * (dy - dx);
 	putPixel(x, y);
+	
+	
 	while (x <= x2)
 	{
 		if (dee <= 0)
@@ -180,10 +206,17 @@ void drawLine(int x1, int y1, int x2, int y2)
 		}
 		else
 		{
+			if (y2 < y1)
+			{
+				dee = dee + inCrease0;
+				y = y - 1;
+			}
+			else
+			{
 
-			dee = dee + inCrease0;
-
-			y = y + 1;
+				dee = dee + inCrease0;
+				y = y + 1;
+			}
 		}
 				/*
 				my = my + mx;
@@ -198,6 +231,7 @@ void drawLine(int x1, int y1, int x2, int y2)
 					my = my - 1;
 				}
 				*/
+
 		x = x + 1;
 		putPixel(x, y);
 			
@@ -212,14 +246,15 @@ void drawCircle(int x0, int y0, int R)
 
 void drawImage()
 {	
-	for (int x = 0; x < 590; x++)
-		putPixel(x, x);
+	/*for (int x = 0; x < 590; x++)
+		putPixel(x, x);*/
 	drawLine(150, 10, 450, 10);
 	drawLine(150, 310, 450, 310);
 	drawLine(150, 10, 150, 310);
 	drawLine(450, 10, 450, 310);
 	drawLine(150, 310, 300, 410);
 	drawLine(300, 410, 450, 310);
+	drawLine(300, 110, 150, 310);
 
 	drawCircle(500, 500, 50);
 }
