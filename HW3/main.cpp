@@ -165,7 +165,14 @@ void drawLine(int x1, int y1, int x2, int y2)
 	int roundY = 0;
 	int x = x1;
 	int y = y1;
-	dx == 0 ? mx = 0 : mx = dy / dx;
+	if (dx == 0)
+	{
+		mx = 0;
+	}
+	else
+	{
+		mx = float(dy) / float(dx);
+	}
 
 
 
@@ -215,7 +222,7 @@ void drawLine(int x1, int y1, int x2, int y2)
 		{
 			if (dee <= 0)
 			{
-				dee = dee + inCrease0;
+				dee = dee - inCrease0;
 				x = x + 1;
 				putPixel(x, y);
 			}
