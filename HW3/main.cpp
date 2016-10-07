@@ -158,8 +158,8 @@ void putPixel(int x, int y)
 void drawLine(int x1, int y1, int x2, int y2)
 {
 	// Task 1
-	float dx = abs(x2 - x1);
-	float dy = abs(y2 - y1);
+	int dx = x2 - x1;
+	int dy = y2 - y1;
 	float mx = 0;
 	float my = 0;
 	int roundY = 0;
@@ -167,17 +167,6 @@ void drawLine(int x1, int y1, int x2, int y2)
 	int y = y1;
 	dx == 0 ? mx = 0 : mx = dy / dx;
 
-
-
-	if (dy > dx)
-	{
-		x1 = y1;
-		x2 = y;
-		x = x1;
-		y1 = x2;
-		y2 = x;
-		y = y1;
-	}
 
 
 	if (x2 < x1)
@@ -193,49 +182,93 @@ void drawLine(int x1, int y1, int x2, int y2)
 	float dee = (2 * dy) - dx;
 	float inCrease0 = 2 * dy;
 	float inCrease1 = 2 * (dy - dx);
-	putPixel(x, y);
-	
-	
-	while (x <= x2)
+	int slope = 0;
+
+	if (dx == 0)
 	{
-		if (dee <= 0)
+		slope = 1;
+	}
+	else if (mx < 0)
+	{
+		slope = 2;
+	}
+	else
+	{
+		slope = 3;
+	}
+	putPixel(x, y);
+
+	switch (slope)
+	{
+	case 1:
+	{
+		while (y < y2)
 		{
-			dee = dee + inCrease0;
-			x = x + 1;
+			y = y + 1;
 			putPixel(x, y);
 		}
-		else
+		break;
+	}
+	case 2:
+	{
+		while (x <= x2)
 		{
-			if (y2 < y1)
+			if (dee <= 0)
 			{
 				dee = dee + inCrease0;
-				y = y - 1;
+				x = x + 1;
+				putPixel(x, y);
 			}
 			else
 			{
-
-				dee = dee + inCrease0;
-				y = y + 1;
-			}
-		}
-				/*
-				my = my + mx;
-				if (my > .5){
-					roundY = floor(my);
-					y = roundY;
-					my = my - roundY;
-				}
-				if (my > .5)
+				if (y2 < y1)
 				{
-					y = y + 1;
-					my = my - 1;
+					dee = dee - inCrease0;
+					y = y - 1;
 				}
-				*/
+				else
+				{
 
-		x = x + 1;
-		putPixel(x, y);
-			
+					dee = dee - inCrease0;
+					y = y - 1;
+				}
+			}
+
+
+			x = x + 1;
+			putPixel(x, y);
+
+		}
+		break;
 	}
+	case 3:
+		while (x <= x2)
+		{
+			if (dee <= 0)
+			{
+				dee = dee + inCrease0;
+				x = x + 1;
+				putPixel(x, y);
+			}
+			else
+			{
+				
+
+					dee = dee + inCrease0;
+					y = y + 1;
+				
+			}
+
+
+			x = x + 1;
+			putPixel(x, y);
+
+		}
+		break;
+	}
+	
+	
+
 	
 }
 
