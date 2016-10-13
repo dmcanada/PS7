@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 
+
 #define M_PI 3.141592654f
 
 unsigned int g_windowWidth = 600;
@@ -153,6 +154,7 @@ void putPixel(int x, int y)
 
 	// write
 	g_image[y* g_image_width + x] = 1.0f;
+	
 }
 
 void drawLine(int x1, int y1, int x2, int y2)
@@ -175,7 +177,7 @@ void drawLine(int x1, int y1, int x2, int y2)
 	}
 
 
-
+	int slope = 0;
 	if (x2 < x1)
 	{
 		x1 = x2;
@@ -184,20 +186,25 @@ void drawLine(int x1, int y1, int x2, int y2)
 		y1 = y2;
 		y2 = y;
 		y = y1;
+		slope = 2;
 	}
 
 	float dee = (2 * dy) - dx;
 	float inCrease0 = 2 * dy;
 	float inCrease1 = 2 * (dy - dx);
-	int slope = 0;
+
 
 	if (dx == 0)
 	{
 		slope = 1;
 	}
-	else if (mx < 0)
+	else if (slope == 2)
 	{
 		slope = 2;
+	}
+	else if (mx < 0)
+	{
+		slope = 4;
 	}
 	else
 	{
@@ -213,6 +220,7 @@ void drawLine(int x1, int y1, int x2, int y2)
 		{
 			y = y + 1;
 			putPixel(x, y);
+
 		}
 		break;
 	}
@@ -223,47 +231,51 @@ void drawLine(int x1, int y1, int x2, int y2)
 			if (dee <= 0)
 			{
 				dee = dee - inCrease0;
-				x = x + 1;
-				putPixel(x, y);
 			}
 			else
 			{
-				if (y2 < y1)
-				{
-					dee = dee - inCrease0;
-					y = y - 1;
-				}
-				else
-				{
-
-					dee = dee - inCrease0;
-					y = y - 1;
-				}
+				dee = dee + inCrease1;
+				y = y - 1;
 			}
-
-
 			x = x + 1;
 			putPixel(x, y);
-
 		}
 		break;
 	}
 	case 3:
-		while (x <= x2)
+	{
+		while (x < x2)
 		{
 			if (dee <= 0)
 			{
 				dee = dee + inCrease0;
-				x = x + 1;
-				putPixel(x, y);
+
 			}
 			else
 			{
-				
+				dee = dee + inCrease1;
+				y = y + 1;
+			}
+			x = x + 1;
+			putPixel(x, y);
+		}
+		break;
+	}
+	case 4:
+	{
+		while (y2 <= y)
+		{
+			if (dee <= 0)
+			{
+				dee = dee - inCrease1;
 
-					dee = dee + inCrease0;
-					y = y + 1;
-				
+			}
+			else
+			{
+
+				dee = dee + inCrease0;
+				y = y - 1;
+
 			}
 
 
@@ -273,19 +285,138 @@ void drawLine(int x1, int y1, int x2, int y2)
 		}
 		break;
 	}
-	
-	
 
-	
+	}
+
+
+
+
 }
+void circlePoints(int x0, int y0, int xC, int yC, int color)
+{
+	int x = x0;
+	int y = y0;
+	int xc = xC;
+	int yc = yC;
+	int colorPixel = color;
+	putPixel(x + xc, y + yc);
+	putPixel(y + yc, x + xc);
+	putPixel(x + xc, -y + yc);
+	putPixel(y + yc, -x + xc);
+	putPixel(-x + xc, y + yc);
+	putPixel(-y + yc, x + xc);
+	putPixel(-x + xc, -y + yc);
+	putPixel(-y + yc, -x + xc);
+}
+void eclipsePoints(int x0, int y0, int xC, int yC, int color)
+{
+	int x = x0;
+	int y = y0;
+	int xc = xC;
+	int yc = yC;
+	putPixel(x + xc, y + yc);
+	putPixel(-x + xc, y + yc);
+	putPixel(x + xc, -y + yc);
+	putPixel(-x + xc, -y + yc);
+}
+
 
 void drawCircle(int x0, int y0, int R)
 {
 	// Task 2
+	int xC = x0;
+	int yC = y0;
+	int r = R;
+	int dee = 0;
+	int x = 0;
+	int y = r;
+	dee = 1 - r;
+	circlePoints(x, y, xC, yC, 0x333333);
+
+	while (y > x)
+	{
+		if (dee < 0)
+		{
+			dee = dee + 2 * x + 3;
+
+		}
+		else
+		{
+			dee = dee + 2 * (x - y) + 5;
+			y = y - 1;
+
+		}
+		x = x + 1;
+		circlePoints(x, y, xC, yC, 0x333333);
+	}
+
 }
 
+void drawEclipse(int xC , int yC, int width, int height)
+{
+	
+	int width_2 = width * width;
+	//int a2 = width * width;
+	int height_2 = height * height;
+	//int b2 = height * height;
+	int increase0 = 4 * width_2;
+	//int fa2 = 4 * a2,
+	int increase1 = 4 * height_2;
+	//fb2 = 4 * b2;
+	int x = 0;
+	int y = height;
+	int dee = 2 * height_2+ width_2*(1-2*height);
+	
+	while (height_2*x <= width_2*y)
+	{
+		eclipsePoints(x, y, xC, yC, 0xffffff);
+		if (dee >= 0)
+		{
+			dee += increase0 * (1 - y);
+			y--;
+		}
+		dee += increase1 * ((4 * x) + 6);
+		x++;
+	}
+	
+	x = width;
+	y = 0;
+	dee = 2 * width_2 + height_2 * (1 - 2 * width);
+	while (width_2*y <= height_2*x)
+	{
+		y++;
+		eclipsePoints(x, y, xC, yC, 0x333333);
+		if (dee >= 0)
+		{
+			dee = dee + (increase1 * (1 - x));
+			x = x - 1;
+		}
+
+		dee = dee + increase0 * ((4 * y) + 6);
+		
+	}
+		/*
+	second half 
+	for (x = width, y = 0, sigma = 2 * a2 + b2*(1 - 2 * width); a2*y <= b2*x; y++)
+	{
+		DrawPixel(xc + x, yc + y);
+		DrawPixel(xc - x, yc + y);
+		DrawPixel(xc + x, yc - y);
+		DrawPixel(xc - x, yc - y);
+		if (sigma >= 0)
+		{
+			sigma += fb2 * (1 - x);
+			x--;
+		}
+		sigma += a2 * ((4 * y) + 6);
+	}
+}
+*/
+
+}
+	
 void drawImage()
-{	
+{
 	/*for (int x = 0; x < 590; x++)
 		putPixel(x, x);*/
 	drawLine(150, 10, 450, 10);
@@ -297,7 +428,11 @@ void drawImage()
 	drawLine(300, 110, 150, 310);
 
 	drawCircle(500, 500, 50);
+
+	drawEclipse(100, 500, 50, 75);
 }
+
+
 
 int main()
 {
