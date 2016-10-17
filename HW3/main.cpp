@@ -6,6 +6,7 @@
 #include <fstream>
 
 
+
 #define M_PI 3.141592654f
 
 unsigned int g_windowWidth = 600;
@@ -188,7 +189,7 @@ void drawLine(int x1, int y1, int x2, int y2)
 		y = y1;
 		slope = 2;
 	}
-
+	bool angle = abs(dx) < abs(dy);
 	float dee = (2 * dy) - dx;
 	float inCrease0 = 2 * dy;
 	float inCrease1 = 2 * (dy - dx);
@@ -263,25 +264,38 @@ void drawLine(int x1, int y1, int x2, int y2)
 	}
 	case 4:
 	{
-		while (y2 <= y)
+		if (angle){
+			while (y2 <= y)
+			{
+				if (dee <= 0)
+				{
+					dee = dee - inCrease1;
+				}
+				else
+				{
+					dee = dee + inCrease0;
+					x = x + 1;
+				}
+				y = y - 1;				
+				putPixel(x, y);
+			}
+		}
+		else
 		{
-			if (dee <= 0)
+			while (x <= x2)
 			{
-				dee = dee - inCrease1;
-
+				if (dee <= 0)
+				{
+					dee = dee - inCrease1;
+				}
+				else
+				{
+					dee = dee + inCrease0;
+					y = y - 1;
+				}
+				x = x + 1;
+				putPixel(x, y);
 			}
-			else
-			{
-
-				dee = dee + inCrease0;
-				y = y - 1;
-
-			}
-
-
-			x = x + 1;
-			putPixel(x, y);
-
 		}
 		break;
 	}
@@ -300,6 +314,15 @@ void circlePoints(int x0, int y0, int xC, int yC, int color)
 	int yc = yC;
 	int colorPixel = color;
 	putPixel(x + xc, y + yc);
+	putPixel(y + xc, x + yc);
+	putPixel(x + xc, -y + yc);
+	putPixel(y + xc, -x + yc);
+	putPixel(-x + xc, y + yc);
+	putPixel(-y + xc, x + yc);
+	putPixel(-x + xc, -y + yc);
+	putPixel(-y + xc, -x + yc);
+	/*
+	putPixel(x + xc, y + yc);
 	putPixel(y + yc, x + xc);
 	putPixel(x + xc, -y + yc);
 	putPixel(y + yc, -x + xc);
@@ -307,6 +330,7 @@ void circlePoints(int x0, int y0, int xC, int yC, int color)
 	putPixel(-y + yc, x + xc);
 	putPixel(-x + xc, -y + yc);
 	putPixel(-y + yc, -x + xc);
+	*/
 }
 void eclipsePoints(int x0, int y0, int xC, int yC, int color)
 {
@@ -352,21 +376,18 @@ void drawCircle(int x0, int y0, int R)
 
 }
 
-void drawEclipse(int xC , int yC, int width, int height)
+void drawEllipse(int xC, int yC, int width, int height)
 {
-	
 	int width_2 = width * width;
-	//int a2 = width * width;
-	int height_2 = height * height;
-	//int b2 = height * height;
+	int height_2 = height * height;;
 	int increase0 = 4 * width_2;
-	//int fa2 = 4 * a2,
 	int increase1 = 4 * height_2;
-	//fb2 = 4 * b2;
 	int x = 0;
 	int y = height;
-	int dee = 2 * height_2+ width_2*(1-2*height);
-	
+
+	int dee = 2 * height_2 + width_2*(1 - 2 * height);
+	int dee2 = 2 * width_2 + height_2 * (1 - 2 * width);
+
 	while (height_2*x <= width_2*y)
 	{
 		eclipsePoints(x, y, xC, yC, 0xffffff);
@@ -375,50 +396,33 @@ void drawEclipse(int xC , int yC, int width, int height)
 			dee += increase0 * (1 - y);
 			y--;
 		}
-		dee += increase1 * ((4 * x) + 6);
+		dee += height_2  * ((4 * x) + 6);
 		x++;
 	}
-	
+
 	x = width;
 	y = 0;
-	dee = 2 * width_2 + height_2 * (1 - 2 * width);
+
 	while (width_2*y <= height_2*x)
 	{
 		y++;
 		eclipsePoints(x, y, xC, yC, 0x333333);
-		if (dee >= 0)
+		if (dee2 >= 0)
 		{
-			dee = dee + (increase1 * (1 - x));
+			dee2 = dee2 + (increase1 * (1 - x));
 			x = x - 1;
 		}
-
-		dee = dee + increase0 * ((4 * y) + 6);
-		
-	}
-		/*
-	second half 
-	for (x = width, y = 0, sigma = 2 * a2 + b2*(1 - 2 * width); a2*y <= b2*x; y++)
-	{
-		DrawPixel(xc + x, yc + y);
-		DrawPixel(xc - x, yc + y);
-		DrawPixel(xc + x, yc - y);
-		DrawPixel(xc - x, yc - y);
-		if (sigma >= 0)
-		{
-			sigma += fb2 * (1 - x);
-			x--;
-		}
-		sigma += a2 * ((4 * y) + 6);
+		dee2 = dee2 + width_2 * ((4 * y) + 6);
 	}
 }
-*/
 
-}
 	
 void drawImage()
 {
+	int m = 0;
 	/*for (int x = 0; x < 590; x++)
 		putPixel(x, x);*/
+	/*
 	drawLine(150, 10, 450, 10);
 	drawLine(150, 310, 450, 310);
 	drawLine(150, 10, 150, 310);
@@ -426,10 +430,66 @@ void drawImage()
 	drawLine(150, 310, 300, 410);
 	drawLine(300, 410, 450, 310);
 	drawLine(300, 110, 150, 310);
-
+	
 	drawCircle(500, 500, 50);
-
-	drawEclipse(100, 500, 50, 75);
+	*/
+	
+	drawCircle(600, 333, 50);
+	drawEllipse(600, 333, 27, 49);
+	drawEllipse(100, 475, 27, 55);
+	drawEllipse(100, 493, 48, 10);
+	for (int i = 50; i >0; i--)
+	{
+	drawEllipse(100+(2*i), 500-(5*i), i+1, i);
+	}
+	drawEllipse(300, 475, 27, 55);
+	drawEllipse(300, 493, 48, 10);
+	for (int i = 50; i >0; i--)
+	{
+	drawEllipse(300 - (2 * i), 500 - (5 * i), i + 1, i);
+	}
+	//mountains
+	drawLine(0, 113, 56, 147);
+	drawLine(56, 146 ,71, 142);
+	drawLine(50, 110, 150, 310);
+	drawLine(150, 210, 197, 170);
+	drawLine(198, 177, 250, 210);
+	drawLine(250, 210, 450, 110);
+	drawLine(309, 169, 370, 220);
+	drawLine(370, 220, 413, 180);
+	//space ship
+	drawCircle(200, 550, 47);
+	drawEllipse(200, 497, 187, 65);
+	drawLine(314, 523, 371, 523);
+	drawLine(239, 523, 286, 523);
+	drawLine(113, 523, 161, 523);
+	drawLine(28, 523, 87, 523);
+	
+	drawEllipse(200, 533, 3, 30);
+	drawLine(200, 477, 200, 533);
+	drawCircle(392, 489, 6);
+	drawLine(390, 495, 398, 495);
+	drawLine(390, 483, 398, 483);
+	for (int j = 0; j < 13; j++)
+	{
+		drawLine(157+j, 482-(j*2), 243-j, 482-(j*2));
+		if (j == 12)
+		{
+			for (int k = 0; k < 9; k++)
+			drawLine(169 - k, 453 - (k * 2), 231 + k, 453 - (k * 2));
+		}
+	}
+	drawLine(355, 132, 450, 230);
+	drawLine(450, 228, 497, 190);
+	drawLine(498, 197, 550, 230);
+	drawLine(550, 230, 600, 190);
+	
+	for (int n = 0; n < 8; n++)
+	{
+		m = m + (n + 17)*n;
+		drawCircle(412 + m, 487+ ((n+1)*2), 7+n);
+	}
+	
 }
 
 
