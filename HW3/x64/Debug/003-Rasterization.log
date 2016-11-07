@@ -1,4 +1,4 @@
-﻿Build started 10/17/2016 10:30:04 AM.
+﻿Build started 10/19/2016 7:25:58 PM.
      1>Project "C:\school\cs4600\PS7\HW3\003-Rasterization.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Iext\stb /Iext\glew\include /Iext\glfw\include /Zi /nologo /W3 /WX- /sdl /Od /D _MBCS /D _MBCS /D _CRT_SECURE_NO_WARNINGS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc120.pdb" /Gd /TP /errorReport:prompt main.cpp
@@ -13,4 +13,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:00.84
+Time Elapsed 00:00:10.53

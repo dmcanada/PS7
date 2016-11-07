@@ -321,16 +321,7 @@ void circlePoints(int x0, int y0, int xC, int yC, int color)
 	putPixel(-y + xc, x + yc);
 	putPixel(-x + xc, -y + yc);
 	putPixel(-y + xc, -x + yc);
-	/*
-	putPixel(x + xc, y + yc);
-	putPixel(y + yc, x + xc);
-	putPixel(x + xc, -y + yc);
-	putPixel(y + yc, -x + xc);
-	putPixel(-x + xc, y + yc);
-	putPixel(-y + yc, x + xc);
-	putPixel(-x + xc, -y + yc);
-	putPixel(-y + yc, -x + xc);
-	*/
+
 }
 void eclipsePoints(int x0, int y0, int xC, int yC, int color)
 {
