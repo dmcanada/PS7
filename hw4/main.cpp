@@ -42,6 +42,7 @@ std::vector<Matrix4f> g_jointRot;			// joint local rotation
 std::vector<Matrix4f> g_jointOffset;		// joint local offset
 std::vector<Matrix4f> g_jointRotRest;		// joint local rest-pose rotation
 std::vector<Matrix4f> g_jointTemp;
+
 // ----------------------------------------------------------------------------
 
 // global transformations
@@ -480,21 +481,25 @@ void computeJointTransformations(
 {
 	// TASK 1 comes here
 
+	
+	Vector4f c;
+	std::vector<Matrix4f>& p_jointTemp(p_global);
 	//{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 	for (int j = 0; j < p_numJoints; j++)
 	{
 		if (j == 0)
 		{
 			p_global[j] = p_offset[j];
-			
+			p_jointTemp[j] = p_global[j];
 		}
 		else if (j==1)
 		{
-			p_global[j] =  p_offset[j] * p_offset[p_jointParent[j]];
-			g_jointTemp[j] = p_global[j];
-		}else
-			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]]*g_jointTemp[j-1];
-		g_jointTemp[j] = p_global[j];
+			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]]*p_jointTemp[j - 1];
+			p_jointTemp[j] = p_global[j] * p_jointTemp[j - 1];
+		}
+else
+		p_global[j] = p_offset[j] * p_offset[p_jointParent[j]] * p_jointTemp[j - 1];
+		//p_jointTemp[j] = p_global[j] * p_jointTemp[j - 1];
 	}
 }
 
@@ -538,8 +543,8 @@ void animate()
 
 int main(int argc, char *argv[]) 
 {
-	//loadData("capsule"); // replace this with the following line to load the Ogre instead
-	loadData("ogre");
+	loadData("capsule"); // replace this with the following line to load the Ogre instead
+	//loadData("ogre");
 	
 	initRestPose();
 
