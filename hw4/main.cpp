@@ -484,7 +484,6 @@ void computeJointTransformations(
 	
 	Vector4f c;
 	std::vector<Matrix4f>& p_jointTemp(p_global);
-	//{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
 	for (int j = 0; j < p_numJoints; j++)
 	{
 		if (j == 0)
@@ -494,12 +493,14 @@ void computeJointTransformations(
 		}
 		else if (j==1)
 		{
-			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]]*p_jointTemp[j - 1];
-			p_jointTemp[j] = p_global[j] * p_jointTemp[j - 1];
+			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]];
+			p_jointTemp[j] = p_global[j] ;
 		}
-else
-		p_global[j] = p_offset[j] * p_offset[p_jointParent[j]] * p_jointTemp[j - 1];
-		//p_jointTemp[j] = p_global[j] * p_jointTemp[j - 1];
+		else
+		{
+			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]] ;
+			p_jointTemp[j] = p_global[j] ;
+		}
 	}
 }
 
