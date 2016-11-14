@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <eigen>
+#include <queue>
 
 using namespace Eigen;
 
@@ -42,7 +43,7 @@ std::vector<Matrix4f> g_jointRot;			// joint local rotation
 std::vector<Matrix4f> g_jointOffset;		// joint local offset
 std::vector<Matrix4f> g_jointRotRest;		// joint local rest-pose rotation
 std::vector<Matrix4f> g_jointTemp;
-
+//std::vector<Vector3f> p_jointTempVertix;
 // ----------------------------------------------------------------------------
 
 // global transformations
@@ -481,43 +482,133 @@ void computeJointTransformations(
 {
 	// TASK 1 comes here
 
-	
+
 	Vector4f c;
 	std::vector<Matrix4f>& p_jointTemp(p_global);
+	std::vector<Matrix4f>& p_jointid(p_global);
+
+	std::queue<int> boneTracker;
+	//p_local T(j)
+	//p_offset R(j)
+	p_jointTemp[0].Zero();
+	p_jointid[0].Identity();
+	p_jointid[0] = p_offset[0] * p_local[0];
+	p_global.empty();
+	int k = 0;
+	int bt = 0;
+	int boneT = 0;
+	int kt = 0;
+
 	for (int j = 0; j < p_numJoints; j++)
 	{
-		if (j == 0)
+		k = p_jointParent[j];
+
+		if (k == -1)
 		{
-			p_global[j] = p_offset[j];
+			p_global[j] = p_jointid[0];
+			boneTracker.push(j);
 			p_jointTemp[j] = p_global[j];
 		}
-		else if (j==1)
+		else if (j == 1)
 		{
-			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]];
-			p_jointTemp[j] = p_global[j] ;
+			p_global[j] = p_jointid[0] * p_offset[j] * p_local[j];
+
+			boneTracker.push(j);
+			p_jointTemp[j] = p_global[j];
 		}
+		else if (j == 2)
+		{
+			p_global[j] = p_jointid[0] * p_offset[p_jointParent[j]] * p_local[p_jointParent[j]] * p_offset[j] * p_local[j];
+			boneTracker.push(j);
+			//p_global[j] = p_jointid[0] * p_jointTemp[p_jointParent[j]] * p_offset[j] * p_local[j];
+			p_jointTemp[j] = p_global[j];
+		}
+		
 		else
 		{
-			p_global[j] = p_offset[j] * p_offset[p_jointParent[j]] ;
-			p_jointTemp[j] = p_global[j] ;
+			if (k != j - 1)
+			{		
+				bt = boneTracker.size();
+
+				
+				for (int n = 0; n < bt; n++)
+				{
+					boneT = boneTracker.front();
+					if (k != -1)
+					{
+						kt = p_jointParent[boneT];
+					}
+					if (boneTracker.front() == 0)
+					{
+						
+						boneTracker.pop();
+					}
+					else if (boneTracker.front() == 1)
+					{
+						
+						boneTracker.pop();						
+					}
+					else if (boneTracker.front() == 2)
+					{
+
+						boneTracker.pop();
+					}
+					else
+					{
+						p_global[boneT] = p_jointTemp[kt]  * p_offset[boneT] * p_local[boneT];
+						p_jointTemp[boneT] = p_global[boneT];
+						boneTracker.pop();
+					}
+					
+				}
+				boneTracker.push(j);
+			}
+			else
+			{
+				
+				boneTracker.push(j);
+			}
 		}
+		
+		//boneTracker.pop();
 	}
+
+
 }
 
+
+
+
 void skinning(
-		const std::vector<Vector3f>& p_vertices, 
-		const unsigned int p_numJoints,
-		const std::vector<Matrix4f>& p_jointTrans,
-		const std::vector<Matrix4f>& p_jointTransRestInv,
-		const std::vector<std::vector<float>>& p_weights,
-		std::vector<Vector3f>& p_deformedVertices)
+	const std::vector<Vector3f>& p_vertices,
+	const unsigned int p_numJoints,
+	const std::vector<Matrix4f>& p_jointTrans,
+	const std::vector<Matrix4f>& p_jointTransRestInv,
+	const std::vector<std::vector<float>>& p_weights,
+	std::vector<Vector3f>& p_deformedVertices)
 {
 	// The following code simply copies rest pose vertex positions
 	// You will need to replace this by your solution of TASK 2
+	Eigen::Vector4f p_jt(0, 0, 0, 0);
+	std::vector<Vector4f> p_jointTempVertix;
+	p_jointTempVertix.push_back(p_jt);
 	for (unsigned int v = 0; v < p_vertices.size(); v++)
 	{
-		p_deformedVertices[v] = p_vertices[v];
+
+	for (int m = 0; m < p_weights.size(); m++)
+	{
+
+	p_jointTempVertix[0] += p_weights[m][v] * p_jointTrans[m] * p_jointTransRestInv[m] * toHomog(p_vertices[v]);
+
 	}
+
+	p_deformedVertices[v] = fromHomog(p_jointTempVertix[0]);
+	p_jointTempVertix.pop_back();
+	p_jointTempVertix.push_back(p_jt);
+	//p_deformedVertices[v] = p_vertices[v];
+
+
+}
 }
 
 void initRestPose()
@@ -544,8 +635,8 @@ void animate()
 
 int main(int argc, char *argv[]) 
 {
-	loadData("capsule"); // replace this with the following line to load the Ogre instead
-	//loadData("ogre");
+	//loadData("capsule"); // replace this with the following line to load the Ogre instead
+	loadData("ogre");
 	
 	initRestPose();
 
