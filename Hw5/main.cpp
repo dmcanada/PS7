@@ -85,7 +85,7 @@ Vector3f trace(
 	const Vector3f &rayOrigin,
 	const Vector3f &rayDirection,
 	const std::vector<Sphere> &spheres)
-	
+
 {
 	//light one 0,60,60
 	//light two -60,60,60
@@ -97,73 +97,91 @@ Vector3f trace(
 
 
 	Vector3f pixelColor = Vector3f::Zero();
+	float t0_0;
+	float t1_0;
 	bool rayTrue = false;
 	bool setColor = false;
-	float t0;
-	float t1;
 	std::vector<float> light1Red;
-	float xPos;
+	float t0Posintersect;
+	int closestOrb = -1;
+	float checkt0;
+	float mint0;
 	Sphere mySphere = spheres[0];
 	pixelColor = bgcolor;
-	mySphere = spheres[0];
-	rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0, t1);
+	
 	for (int j = 0; j < lightPositions.size(); j++)
 	{
-		xPos = lightPositions[0][j];
+		//xPos = lightPositions[0][j];
 		//light1Red = sqrt(pow(lightPositions[j][0] - 1, 2) + pow(lightPositions[j][ 1] - .31, 2) + pow(lightPositions[j][2] - .36, 2));
 	}
-	if (rayTrue)
-	{
-				pixelColor[0] = 0.5f;
-				pixelColor[1] = 0.5f;
-				pixelColor[2] = 0.5f;
-	}
+	
 
-	mySphere = spheres[3];
-	rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0, t1);
-	if (rayTrue)
-		{
-			pixelColor[0] = .65f;
-			pixelColor[1] = .77f;
-			pixelColor[2] = .97f;			
-		}
 	for (int i = 0; i < spheres.size(); i++)
 	{
 		mySphere = spheres[i];
-		rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0, t1);
+
+		rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0_0, t1_0);
 		if (rayTrue == true)
 		{
-			switch (i)
+			checkt0 = t0_0;
+			if (closestOrb == -1)
 			{
-			case 1:
-			{
-				pixelColor[0] = 1.0f;
-				pixelColor[1] = .32f;
-				pixelColor[2] = .36f;
-				break;
+				mint0 = checkt0;
+				closestOrb = i;
 			}
-		
-			case 2:
+			else if (checkt0 < mint0)
 			{
-				pixelColor[0] = .9f;
-				pixelColor[1] = .76f;
-				pixelColor[2] = .46f;
-				break;
-			}
-			case 4:
-			{
-				pixelColor[0] = .9f;
-				pixelColor[1] = .9f;
-				pixelColor[2] = .9f;
-				break;
-			}
-		
+				mint0 = checkt0;
+				closestOrb = i;
 			}
 		}
+	}
+	switch (closestOrb)
+	{
+	case 0:
+	{
+			  pixelColor[0] = 0.5f;
+			  pixelColor[1] = 0.5f;
+			  pixelColor[2] = 0.5f;
+			  break;
+	}
+
+	case 1:
+	{
+			  pixelColor[0] = 1.0f;
+			  pixelColor[1] = .32f;
+			  pixelColor[2] = .36f;
+			  break;
+	}
+
+	case 2:
+	{
+			  pixelColor[0] = .9f;
+			  pixelColor[1] = .76f;
+			  pixelColor[2] = .46f;
+			  break;
+	}
+	case 3:
+	{
+			  pixelColor[0] = .65f;
+			  pixelColor[1] = .77f;
+			  pixelColor[2] = .97f;
+			  break;
+	}
+	case 4:
+	{
+			  pixelColor[0] = .9f;
+			  pixelColor[1] = .9f;
+			  pixelColor[2] = .9f;
+			  break;
+	}
+
+
+
 
 	}
 
-	
+
 
 	//std::cout << "help" << pixelColor;
 	// TODO: implement ray tracing as described in the homework description
