@@ -99,21 +99,24 @@ Vector3f trace(
 	Vector3f pixelColor = Vector3f::Zero();
 	float t0_0;
 	float t1_0;
+	float t0_1;
+	float t1_1;
 	bool rayTrue = false;
-	bool setColor = false;
+	bool LrayTrue = false;
 	std::vector<float> light1Red;
 	float t0Posintersect;
 	int closestOrb = -1;
 	float checkt0;
 	float mint0;
+	float LMag;
 	Sphere mySphere = spheres[0];
 	pixelColor = bgcolor;
-	
-	for (int j = 0; j < lightPositions.size(); j++)
-	{
-		//xPos = lightPositions[0][j];
-		//light1Red = sqrt(pow(lightPositions[j][0] - 1, 2) + pow(lightPositions[j][ 1] - .31, 2) + pow(lightPositions[j][2] - .36, 2));
-	}
+	Vector3f LvectorOrigin = Vector3f::Zero();
+	Vector3f Lvector = Vector3f::Zero();
+	std::vector<float> color;
+	float colorFactor = 0;
+	bool miss = false;
+	bool hit = false;
 	
 
 	for (int i = 0; i < spheres.size(); i++)
@@ -121,6 +124,7 @@ Vector3f trace(
 		mySphere = spheres[i];
 
 		rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0_0, t1_0);
+
 		if (rayTrue == true)
 		{
 			checkt0 = t0_0;
@@ -136,52 +140,92 @@ Vector3f trace(
 			}
 		}
 	}
-	switch (closestOrb)
+	if (closestOrb > -1)
 	{
-	case 0:
-	{
-			  pixelColor[0] = 0.5f;
-			  pixelColor[1] = 0.5f;
-			  pixelColor[2] = 0.5f;
-			  break;
+		LvectorOrigin = { rayOrigin[0] + (rayDirection[0] * t0_0), rayOrigin[1] + (rayDirection[1] * t0_0), rayOrigin[2] + (rayDirection[2] * t0_0) };
+		for (int k = 0; k < lightPositions.size(); k++)
+		{
+			Lvector = { lightPositions[k][0] - LvectorOrigin[0], lightPositions[k][1] - LvectorOrigin[1], lightPositions[k][2] - LvectorOrigin[2] };
+			LMag = sqrt(pow(Lvector[0], 2) + pow(Lvector[1], 2) + pow(Lvector[2], 2));
+			Lvector[0] = Lvector[0] / LMag;
+			Lvector[1] = Lvector[1] / LMag;
+			Lvector[2] = Lvector[2] / LMag;
+			miss = false;
+			hit = false;
+			for (int i = 0; i < spheres.size(); i++)
+			{
+				
+				{
+					mySphere = spheres[i];
+
+					LrayTrue = mySphere.intersect(LvectorOrigin, Lvector, t0_1, t1_1);
+
+					if (LrayTrue != false)
+					{
+						hit = true;
+						miss = false;
+					}
+					else
+					{
+						miss = true;
+					}
+				}
+
+
+				if (miss == true && hit == false)
+				{
+					colorFactor += .33f;
+
+				}
+			
+		}
+		
+		switch (closestOrb)
+		{
+		case 0:
+		{
+			pixelColor[0] = 0.5f * colorFactor;
+			pixelColor[1] = 0.5f * colorFactor;
+			pixelColor[2] = 0.5f * colorFactor;
+			break;
+		}
+
+		case 1:
+		{
+			pixelColor[0] = 1.0f * colorFactor;
+			pixelColor[1] = .32f * colorFactor;
+			pixelColor[2] = .36f *colorFactor;
+			break;
+		}
+
+		case 2:
+		{
+			pixelColor[0] = .9f * colorFactor;
+			pixelColor[1] = .76f * colorFactor;
+			pixelColor[2] = .46f * colorFactor;
+			break;
+		}
+		case 3:
+		{
+			pixelColor[0] = .65f * colorFactor;
+			pixelColor[1] = .77f * colorFactor;
+			pixelColor[2] = .97f * colorFactor;
+			break;
+		}
+		case 4:
+		{
+			pixelColor[0] = .9f * colorFactor;
+			pixelColor[1] = .9f * colorFactor;
+			pixelColor[2] = .9f * colorFactor;
+			break;
+		}
+
+
+
+
+		}
+
 	}
-
-	case 1:
-	{
-			  pixelColor[0] = 1.0f;
-			  pixelColor[1] = .32f;
-			  pixelColor[2] = .36f;
-			  break;
-	}
-
-	case 2:
-	{
-			  pixelColor[0] = .9f;
-			  pixelColor[1] = .76f;
-			  pixelColor[2] = .46f;
-			  break;
-	}
-	case 3:
-	{
-			  pixelColor[0] = .65f;
-			  pixelColor[1] = .77f;
-			  pixelColor[2] = .97f;
-			  break;
-	}
-	case 4:
-	{
-			  pixelColor[0] = .9f;
-			  pixelColor[1] = .9f;
-			  pixelColor[2] = .9f;
-			  break;
-	}
-
-
-
-
-	}
-
-
 
 	//std::cout << "help" << pixelColor;
 	// TODO: implement ray tracing as described in the homework description
