@@ -58,8 +58,19 @@ Vector3f diffuse(const Vector3f &L, // direction vector from the point on the su
 	)
 {
 	Vector3f resColor = Vector3f::Zero();
+	Vector3f coloring = Vector3f::Zero();
+	float maxValue;
+	float difColor;
+	maxValue = L.dot(N);
+	if (maxValue < 0)
+	{
+		maxValue = 0;
+	}
 
+	resColor = 0.333 * kd * maxValue* diffuseColor ;
+	//difColor = 0.333 * kd * maxValue;
 	// TODO: implement diffuse shading model
+	
 
 	return resColor;
 }
@@ -75,7 +86,8 @@ Vector3f phong(const Vector3f &L, // direction vector from the point on the surf
                const float alpha) // shininess constant
 {
 	Vector3f resColor = Vector3f::Zero();
-
+	Vector3f R = Vector3f::Zero();
+	
 	// TODO: implement Phong shading model
 
 	return resColor;
@@ -97,22 +109,30 @@ Vector3f trace(
 
 
 	Vector3f pixelColor = Vector3f::Zero();
+	Vector3f resetColor;
+	Vector3f normalVector = Vector3f::Zero();
 	float t0_0;
 	float t1_0;
 	float t0_1;
 	float t1_1;
 	bool rayTrue = false;
 	bool LrayTrue = false;
-	std::vector<float> light1Red;
+	Vector3f colorFactor1 = Vector3f::Zero();
 	float t0Posintersect;
 	int closestOrb = -1;
+	std::vector<int> closestshad;
 	float checkt0;
 	float mint0;
+	float cne;
+	bool skip = false;
+	float mint1 = -1;
 	float LMag;
+	float NMag;
 	Sphere mySphere = spheres[0];
 	pixelColor = bgcolor;
 	Vector3f LvectorOrigin = Vector3f::Zero();
 	Vector3f Lvector = Vector3f::Zero();
+	Vector3f veiwVector = Vector3f::Zero();
 	std::vector<float> color;
 	float colorFactor = 0;
 	bool miss = false;
@@ -121,27 +141,32 @@ Vector3f trace(
 
 	for (int i = 0; i < spheres.size(); i++)
 	{
-		mySphere = spheres[i];
-
-		rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0_0, t1_0);
-
-		if (rayTrue == true)
+		if (i != 3)
 		{
-			checkt0 = t0_0;
-			if (closestOrb == -1)
+			mySphere = spheres[i];
+
+			rayTrue = mySphere.intersect(rayOrigin, rayDirection, t0_0, t1_0);
+
+			if (rayTrue == true)
 			{
-				mint0 = checkt0;
-				closestOrb = i;
-			}
-			else if (checkt0 < mint0)
-			{
-				mint0 = checkt0;
-				closestOrb = i;
+				checkt0 = t0_0;
+				if (closestOrb == -1)
+				{
+					mint0 = checkt0;
+					closestOrb = i;
+				}
+				else if (checkt0 < mint0)
+				{
+
+					mint0 = checkt0;
+					closestOrb = i;
+				}
 			}
 		}
 	}
 	if (closestOrb > -1)
 	{
+		mySphere = spheres[closestOrb];
 		LvectorOrigin = { rayOrigin[0] + (rayDirection[0] * t0_0), rayOrigin[1] + (rayDirection[1] * t0_0), rayOrigin[2] + (rayDirection[2] * t0_0) };
 		for (int k = 0; k < lightPositions.size(); k++)
 		{
@@ -152,14 +177,19 @@ Vector3f trace(
 			Lvector[2] = Lvector[2] / LMag;
 			miss = false;
 			hit = false;
-			for (int i = 0; i < spheres.size(); i++)
+			
+			normalVector = { LvectorOrigin[0] - mySphere.center[0], LvectorOrigin[1] - mySphere.center[1], LvectorOrigin[2] - mySphere.center[2] };
+			NMag = sqrt(pow(normalVector[0], 2) + pow(normalVector[1], 2) + pow(normalVector[2], 2));
+			normalVector[0] = normalVector[0] / NMag;
+			normalVector[1] = normalVector[1] / NMag;
+			normalVector[2] = normalVector[2] / NMag;
+
+			
+			for (int m = 0; m < spheres.size(); m++)
 			{
+				mySphere = spheres[m];
+				LrayTrue = mySphere.intersect(LvectorOrigin, Lvector, t0_1, t1_1);
 				
-				{
-					mySphere = spheres[i];
-
-					LrayTrue = mySphere.intersect(LvectorOrigin, Lvector, t0_1, t1_1);
-
 					if (LrayTrue != false)
 					{
 						hit = true;
@@ -170,16 +200,80 @@ Vector3f trace(
 						miss = true;
 					}
 				}
-
-
+				
+			
+			
 				if (miss == true && hit == false)
 				{
-					colorFactor += .33f;
-
+					mySphere = spheres[closestOrb];
+					resetColor = diffuse(Lvector, normalVector, mySphere.surfaceColor, 1.0f);
+					//resetColor = phong(Lvector, normalVector, rayDirection, mySphere.surfaceColor, Vector3f::Ones(), 1.0f,
+					//	3.0f, 100.0f);
+						//const Vector3f &V, // direction pointing towards the viewer
+					//colorFactor += .33f;
+					/*
+					colorFactor1[0] += .33f;
+					colorFactor1[1] += .33f;
+					colorFactor1[2] += .33f;
+					*/
+					colorFactor1[0] += resetColor[0];
+					colorFactor1[1] += resetColor[1];
+					colorFactor1[2] += resetColor[2];
+					//*/
 				}
 			
 		}
 		
+		
+		switch (closestOrb)
+		{
+		case 0:
+		{
+			
+			pixelColor[0] = 0.5f *colorFactor1[0];
+			pixelColor[1] = 0.5f *colorFactor1[1];
+			pixelColor[2] = 0.5f *colorFactor1[2];
+			break;  
+		}
+
+		case 1:
+		{
+			pixelColor[0] = 1.0f * colorFactor1[0];
+			pixelColor[1] = .32f * colorFactor1[1];
+			pixelColor[2] = .36f * colorFactor1[2];
+			break;
+			  
+		}
+		
+		case 2:
+		{
+			pixelColor[0] = .9f * colorFactor1[0];
+			pixelColor[1] = .76f * colorFactor1[1];
+			pixelColor[2] = .46f * colorFactor1[2];
+			break; 
+		}
+		case 3:
+		{
+			pixelColor[0] = .65f * colorFactor1[0];
+			pixelColor[1] = .77f * colorFactor1[1];
+			pixelColor[2] = .97f * colorFactor1[2];
+			break; 
+		}
+		case 4:
+		{
+			pixelColor[0] = .9f *colorFactor1[0];
+			pixelColor[1] = .9f *colorFactor1[1];
+			pixelColor[2] = .9f *colorFactor1[2];
+			break; 
+		}
+	deflaut:
+		{
+			break;
+		}
+
+
+		}
+		/*
 		switch (closestOrb)
 		{
 		case 0:
@@ -219,12 +313,13 @@ Vector3f trace(
 			pixelColor[2] = .9f * colorFactor;
 			break;
 		}
-
-
-
-
+	deflaut:
+		{
+			break;
 		}
 
+
+		}*/
 	}
 
 	//std::cout << "help" << pixelColor;
@@ -232,7 +327,11 @@ Vector3f trace(
 	
 	return pixelColor;
 }
-
+// auxiliary math functions
+float dotProduct(const float* a, const float* b)
+{
+	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
 void render(const std::vector<Sphere> &spheres)
 {
   unsigned width = 640;
